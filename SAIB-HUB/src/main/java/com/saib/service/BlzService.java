@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
  import com.saib.consumer.BLZServiceClient;
 import com.saib.dto.BLZServiceDTO;
-import com.saib.model.Logs;
+import com.saib.model.LogsModel;
 import com.saib.repository.LogsRepo;
 import com.saib.rest.request.GetDetailsByBlzCodeRequest;
 import com.saib.rest.response.GetDetailsByBlzCodeResponse;
@@ -47,8 +47,8 @@ public class BlzService {
 			
 		}
 		LOGGER.debug("GetDetailsByBlzCodeResponse Response sent to client "+response.toString());
-		Logs logs = LogUtils.getLogObject(request, "TransationId", response.toString(),  "BlzService", applicationName);
-		logsRepo.save(logs);
+		LogsModel logsModel = LogUtils.getLogObject(request, "TransationId", response.toString(),  "BlzService", applicationName);
+		logsRepo.save(logsModel);
 
 		return response;
 	}

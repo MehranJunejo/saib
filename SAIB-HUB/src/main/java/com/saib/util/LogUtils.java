@@ -3,23 +3,23 @@ package com.saib.util;
 import java.sql.Timestamp;
 
 import com.google.gson.Gson;
-import com.saib.model.Logs;
+import com.saib.model.LogsModel;
 import com.saib.rest.request.GetDetailsByBlzCodeRequest;
 
 public class LogUtils {
 
 	
-	public static Logs getLogObject(GetDetailsByBlzCodeRequest code,String transactionId,String response,String serviceName,String applicationName)
+	public static LogsModel getLogObject(GetDetailsByBlzCodeRequest code,String transactionId,String response,String serviceName,String applicationName)
 	{
-		Logs logs = new Logs();
-		logs.setRequestData(new Gson().toJson(code));
-		logs.setTransactionId("1");
-		logs.setResponseData(new Gson().toJson(response));
-		logs.setServiceName("BlzService");
-		logs.setApplicationName(applicationName);
-		logs.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+		LogsModel logsModel = new LogsModel();
+		logsModel.setRequestData(new Gson().toJson(code));
+		logsModel.setTransactionId("1");
+		logsModel.setResponseData(new Gson().toJson(response));
+		logsModel.setServiceName("BlzService");
+		logsModel.setApplicationName(applicationName);
+		logsModel.setCreatedDate(new Timestamp(System.currentTimeMillis()));
 
-		return logs;
+		return logsModel;
 	}
 	
 }
