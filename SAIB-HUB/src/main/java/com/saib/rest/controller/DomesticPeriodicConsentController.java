@@ -1,5 +1,7 @@
 package com.saib.rest.controller;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.saib.common.CommonUtil;
+import com.saib.common.Internationalization;
 import com.saib.rest.request.AddDomesticPeriodicConsentRequest;
 import com.saib.rest.response.AddDomesticPeriodicConsentResponse;
 import com.saib.rest.response.GetDomesticPeriodicConsentByIdResponse;
@@ -32,22 +35,10 @@ public class DomesticPeriodicConsentController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DomesticPeriodicConsentController.class);
 
 	@Autowired
+	private Internationalization internationalization;
+	
+	@Autowired
 	private DomesticPeriodicConsentService domesticPeriodicConsentService;
-	
-	
-	@Operation(summary = "Retrieve the domestic consent details", description = "Retrieve the domestic consent details by id", tags = "GET")
-	@GetMapping(value = "v1/{domesticPeriodicConsentId}" , produces = { MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE })
-	public ResponseEntity<GetDomesticPeriodicConsentByIdResponse> getDomesticPaymentById(
-			@PathVariable  Long domesticPeriodicConsentId) {
-	
-    		HttpHeaders httpHeaders = new HttpHeaders();
-    		GetDomesticPeriodicConsentByIdResponse response = domesticPeriodicConsentService.addDomesticPeriodicConsentById(domesticPeriodicConsentId);
-		return ResponseEntity.status(HttpStatus.OK).headers(httpHeaders).body(response);
-	}		
-	
-	
-	
 	
 	
 	@Operation(summary = "add domestic consent", description = "add domestic consent", tags = "POST")
@@ -58,33 +49,39 @@ public class DomesticPeriodicConsentController {
 			@RequestBody AddDomesticPeriodicConsentRequest request) {
 		
 		AddDomesticPeriodicConsentResponse response = new AddDomesticPeriodicConsentResponse();
-		 
 		HttpHeaders httpHeaders = new HttpHeaders();
 		
 		try {
 
-			LOGGER.debug("Inside getDetailsByBlzCode Controller" + request.toString());
+			LOGGER.debug("Inside /v1 postDomesticConsent ");
 
-			if (CommonUtil.isNullOrEmty(request.getLang())) {
-				response.setResponseCode(HttpStatus.BAD_REQUEST.value());
-				response.setResponesMsg("Language is null or empty");
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(httpHeaders).body(response);
-			}
+			
 			if (CommonUtil.isNullOrEmty(request.getName())) {
 				response.setResponseCode(HttpStatus.BAD_REQUEST.value());
-				response.setResponesMsg("name is null or empty");
+				response.setResponesMsg(internationalization.messageResource()
+						.getMessage("base.request.name.empty", null, new Locale(request.getLang())));
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(httpHeaders).body(response);
 			}
 			
+			 
 			if (CommonUtil.isNullOrEmty(request.getConsentType())) {
 				response.setResponseCode(HttpStatus.BAD_REQUEST.value());
-				response.setResponesMsg("Consent Type is null or empty");
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(httpHeaders).body(response);
+				response.setResponesMsg(internationalization.messageResource()
+						.getMessage("base.request.type.empty", null, new Locale(request.getLang())));
+ 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(httpHeaders).body(response);
 			}
 			
 			if (CommonUtil.isNullOrEmty(request.getTransactionType())) {
 				response.setResponseCode(HttpStatus.BAD_REQUEST.value());
-				response.setResponesMsg("Transaction Type is null or empty");
+				response.setResponesMsg(internationalization.messageResource()
+						.getMessage("base.request.trans.empty", null, new Locale(request.getLang())));
+ 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(httpHeaders).body(response);
+			}
+			
+			if (CommonUtil.isNullOrEmty(request.getLang())) {
+				response.setResponseCode(HttpStatus.BAD_REQUEST.value());
+				response.setResponesMsg(internationalization.messageResource()
+						.getMessage("base.request.lang.empty", null, new Locale(request.getLang())));
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(httpHeaders).body(response);
 			}
 			response = domesticPeriodicConsentService.addDomesticPeriodicConsent(request);
@@ -96,14 +93,36 @@ public class DomesticPeriodicConsentController {
 			response.setErrorMessage(CommonUtil.getException(e));
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 		} finally {
-			
 		}
 
-		return ResponseEntity.status(HttpStatus.OK).headers(httpHeaders).body(response);
-		
+		return ResponseEntity.status(HttpStatus.OK).headers(httpHeaders).body(response);		
 	}
 	
+
 	
+	@Operation(summary = "Retrieve the domestic consent details", description = "Retrieve the domestic consent details by id", tags = "GET")
+	@GetMapping(value = "v1/{domesticPeriodicConsentId}/{lang}" , produces = { MediaType.APPLICATION_JSON_VALUE,
+					MediaType.APPLICATION_XML_VALUE })
+	public ResponseEntity<GetDomesticPeriodicConsentByIdResponse> getDomesticPaymentById(
+			@PathVariable  Long domesticPeriodicConsentId,@PathVariable String lang) {
 	
+    		HttpHeaders httpHeaders = new HttpHeaders();
+    		GetDomesticPeriodicConsentByIdResponse response = new GetDomesticPeriodicConsentByIdResponse();
+    		try {
+    			LOGGER.debug("Inside /v1/{domesticPeriodicConsentId} getDomesticPaymentById ");
+
+    		 response = domesticPeriodicConsentService.getDomesticPeriodicConsentById(domesticPeriodicConsentId,lang);    		 
+
+    		} catch (Throwable e) {
+
+    			response.setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    			response.setResponesMsg("Something went wrong.");
+    			response.setErrorMessage(CommonUtil.getException(e));
+    			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    		} finally {
+    		}
+   		 return ResponseEntity.status(HttpStatus.OK).headers(httpHeaders).body(response);
+
+    		}		
 	
 }
